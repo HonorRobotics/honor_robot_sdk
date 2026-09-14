@@ -1,0 +1,11 @@
+# Goal
+uint32 action_id
+ParamKV[] param
+
+---
+# Result
+uint32 result
+
+---
+# Feedback
+uint32 schedule

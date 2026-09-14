@@ -1,0 +1,7 @@
+build
+build_dist
+.vscode*
+.claude/
+import
+out
+__pycache__

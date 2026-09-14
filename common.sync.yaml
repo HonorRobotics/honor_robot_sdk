@@ -1,0 +1,127 @@
+# =============================================================================
+# honor_robot_sdk common 消息包同步配置
+# =============================================================================
+# 作用: 声明从内部仓 Xproj_Common 同步到本 SDK common/ 的消息接口清单。
+#       CI / scripts/sync_common.py 依据本文件自动从源仓拉取对应文件。
+#
+# 工作流:
+#   1. 上游 Xproj_Common 合入改动 → 触发 sensor 仓 CI(common_sync job)
+#   2. CI 调用 scripts/sync_common.py:
+#      a. 按本文件声明的文件清单从源仓拷贝 .msg/.srv/.action/package.xml
+#      b. 自动解析同包消息依赖闭包(见下"依赖自动补全"),缺失的引用文件会被补齐,
+#         保证 rosidl 编译不断链
+#      c. 各包的 CMakeLists.txt 均用 file(GLOB)(由 SDK 自行维护),
+#         新增/删除接口自动纳入,脚本无需重写
+#      d. 先在临时目录编译(aarch64 + x86_64)作为门禁,通过才继续
+#      e. 通过后提交 + 推 trunk 自动合入,并把解析到的 commit SHA 写入 common.sync.lock
+#
+# 编辑指南:
+#   - 想精简 SDK 表面时,从下面的 files 列表删掉对应 msg/srv/action 即可;
+#     脚本会自动补齐它依赖的同包消息,也会自动从 CMakeLists 列表移除未选中的项。
+#   - 想新增接口,在 files 里加上文件名(不含路径),前提是源仓存在该文件。
+#   - CMakeLists.txt / build.sh 不在同步范围,由 SDK 自行维护。
+# =============================================================================
+
+source:
+  # 源仓 Gerrit 项目名(http 前缀由 CI 凭据注入,本地脚本用 /home/l00013293/root_32207/sdk/common)
+  repo: honor/Xproj_Common
+  # 跟随的源分支;CI 解析后会把具体 commit SHA 写入 common.sync.lock 以保证可复现
+  ref: honor_trunk_xproj
+  # 源仓内模块根目录(两个包都在 modules/ 下)
+  modules_root: modules
+
+# 同步的包及其文件清单
+packages:
+
+  - name: interaction_msgs
+    src_path: modules/interaction_msgs
+    # interaction_msgs/CMakeLists.txt 用 file(GLOB),新增/删除文件自动纳入,无需重写
+    cmake_strategy: glob
+    # 始终同步的包级文件(原样拷贝,不改造)
+    package_files:
+      - package.xml
+      - README.md
+    # 主动选中的接口文件(不含子目录前缀,脚本按 msg/srv/action 自动归类)
+    files:
+      # msg (28)
+      - LowCommand.msg
+      - LowCommandDebug.msg
+      - LowState.msg
+      - LowVerbose.msg
+      - Motion.msg
+      - MotionRef.msg
+      - MotorCommand.msg
+      - MotorErrCode.msg
+      - MotorRecoveryEnable.msg
+      - MotorState.msg
+      - MotorVerboseInfo.msg
+      - Move.msg
+      - ParamKV.msg
+      - RobotState.msg
+      # action (3)
+      - HeadControl.action
+      - Locomotion.action
+
+  - name: robot_msgs
+    src_path: modules/robot_msgs
+    # robot_msgs/CMakeLists.txt 用 file(GLOB),新增/删除文件自动纳入,无需重写
+    cmake_strategy: glob
+    package_files:
+      - package.xml
+    files:
+      # msg (31)
+      - LidarHumanInfo.msg
+      # srv (9)
+      - GetRobotInfo.srv
+      - NavigationStatus.msg
+      - PathRecordCommand.msg
+      - PathRecordStatus.msg
+      - StartMapping.srv
+      - StopAndSaveMap.srv
+      - SetCurrentWorkingMap.srv
+      - StartLocWithoutPose.srv
+      - StartLocWithPose.srv
+      - StopLoc.srv
+
+  - name: camera_msgs
+    src_path: modules/camera_msgs
+    # camera_msgs/CMakeLists.txt 用 file(GLOB),新增/删除文件自动纳入,无需重写
+    cmake_strategy: glob
+    package_files:
+      - package.xml
+    files:
+      # msg (1)
+      - PtzStatus.msg
+
+  - name: sys_monitor_msgs
+    src_path: modules/sys_monitor_msgs
+    # sys_monitor_msgs 源仓用 file(GLOB),SDK 同样用 glob,新增/删除 msg 自动纳入
+    cmake_strategy: glob
+    package_files:
+      - package.xml
+    files:
+      # msg (3)
+      - CameraStatus.msg
+      - LidarStatus.msg
+      - IMUStatus.msg
+
+# ---- 同步策略 ----
+policy:
+  # 依赖自动补全: 某个被选中的 msg/srv/action 引用了同包内另一个未在清单里的 msg 时,
+  # 脚本自动把它补进同步集合并写入 CMakeLists,避免编译断链。
+  # 例: CommandList 引用 Command[] → 自动补 Command;LowCommand 引用 MotorCommand → 自动补 MotorCommand。
+  auto_resolve_deps: true
+  # 标准包依赖(std_msgs/geometry_msgs/sensor_msgs/nav_msgs/builtin_interfaces/action_msgs/
+  # unique_identifier_msgs)属于 ROS2 自带,不在同步范围,只保证 package.xml 声明即可。
+  external_pkg_prefixes:
+    - std_msgs
+    - geometry_msgs
+    - sensor_msgs
+    - nav_msgs
+    - builtin_interfaces
+    - action_msgs
+    - unique_identifier_msgs
+  # SDK 自维护、不参与同步的文件(脚本不会从源仓覆盖这些)
+  preserve:
+    - CMakeLists.txt
+    - build.sh

@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>honor_robot_sdk_examples</name>
+  <version>1.0.0</version>
+  <description>honor_robot_sdk C++ examples</description>
+  <maintainer email="dev@hihonor.com">honor_robot_sdk</maintainer>
+  <license>MindVenture License</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>rclcpp</depend>
+  <depend>sensor_msgs</depend>
+  <depend>std_srvs</depend>
+  <depend>sys_monitor_msgs</depend>
+  <!-- 可选:有 cv_bridge + OpenCV 时编译图像保存功能 -->
+  <exec_depend>cv_bridge</exec_depend>
+
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

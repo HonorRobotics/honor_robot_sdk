@@ -1,0 +1,8 @@
+# request
+---
+# response
+string product_name
+string sn
+string hardware_version
+string software_version
+string imei

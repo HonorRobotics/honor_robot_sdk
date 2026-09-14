@@ -1,0 +1,13 @@
+int32 dexhand_id
+int32 manufacturer
+float32[] pos
+float32[] spd
+float32[] ang
+int32[] err
+int32[] status
+int32[] touch
+int32[] force
+int8[] mode
+float32[] kp
+float32[] kd
+float32[] temp

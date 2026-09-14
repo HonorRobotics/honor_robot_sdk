@@ -1,0 +1,9 @@
+float32 target_yaw   #目标水平旋转角度 （rad）
+float32 target_pitch #目标垂直旋转角度 （rad）
+float32 v_yaw        #水平旋转速度 (rad/s)
+float32 v_pitch      #垂直旋转速度 (rad/s)
+---
+uint32 result        #0/1:1表示ok  0表示失败
+---
+float32 current_yaw  #feedback当前的角度
+float32 current_pitch 

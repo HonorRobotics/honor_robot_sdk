@@ -1,0 +1,8 @@
+source_repo: honor/Xproj_Common
+source_ref: honor_trunk_xproj
+source_commit: 590b24a09725b637676f2cc0b7abaace7a734ed6
+packages:
+- interaction_msgs
+- robot_msgs
+- camera_msgs
+- sys_monitor_msgs

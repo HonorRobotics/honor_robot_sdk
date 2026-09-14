@@ -1,0 +1,45 @@
+# RouDi 共享内存配置 —— 适用于 16GB 及以上内存的开发板（大容量默认）
+# 共享内存总量约 3.68 GB，仅建议在内存充裕的板子上使用。
+# 用法：./run_roudi.sh roudi_config.toml  或  ROUDI_CONFIG=roudi_config.toml ./run_roudi.sh
+
+[general]
+version = 1
+
+
+[[segment]]
+
+[[segment.mempool]]
+size = 128
+count = 100000
+
+[[segment.mempool]]
+size = 1024
+count = 100000
+
+[[segment.mempool]]
+size = 16384
+count = 2000
+
+[[segment.mempool]]
+size = 131072
+count = 200
+
+[[segment.mempool]]
+size = 524288
+count = 300
+
+[[segment.mempool]]
+size = 1048576
+count = 300
+
+[[segment.mempool]]
+size = 6300000
+count = 100
+
+[[segment.mempool]]
+size = 10000000
+count = 200
+
+[[segment.mempool]]
+size = 50000000
+count = 8

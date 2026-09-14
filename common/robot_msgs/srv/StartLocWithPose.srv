@@ -1,0 +1,5 @@
+string pose_id
+---
+int32 result
+string message
+string task_id
