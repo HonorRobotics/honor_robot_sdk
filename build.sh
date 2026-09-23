@@ -192,9 +192,16 @@ if ! build_module "example" "$BASE_DIR/example/cpp"; then
     exit 2
 fi
 
-# 注:Python 示例(example/python/*.py)是纯脚本,无需编译,直接运行:
-#   source out/build_dist/common/setup.bash
-#   python3 example/python/common/camera_echo.py
+# 注:Python 示例(example/python/*.py)是纯脚本,无需编译,直接运行。
+# 打包到 build_dist/examples/python/ 下,与 C++ 的 build_dist/examples/lib/ 并列,
+# 统一由 examples/setup.bash 覆盖(该文件已 source common,含 Python 消息绑定)。
+mkdir -p "$DIST_DIR/build_dist/examples/python/common" "$DIST_DIR/build_dist/examples/python/product"
+for pydir in common product; do
+    if compgen -G "$BASE_DIR/example/python/$pydir/*.py" > /dev/null; then
+        cp "$BASE_DIR/example/python/$pydir/"*.py "$DIST_DIR/build_dist/examples/python/$pydir/"
+    fi
+done
+info "packaged python examples: $DIST_DIR/build_dist/examples/python"
 
 success "Honor Robot SDK build completed."
 info "SDK version:   $SDK_VERSION"
@@ -214,6 +221,8 @@ if [ -d "$EXE_DIR" ]; then
 fi
 for py in "$BASE_DIR"/example/python/common/*.py "$BASE_DIR"/example/python/product/*.py; do
     [ -f "$py" ] || continue
-    info "run Py:   source $DIST_DIR/build_dist/common/setup.bash && python3 ${py#$BASE_DIR/}"
+    # 与 C++ 示例同一 setup.bash(examples/setup.bash 已 source common),lib 与 python 并列
+    rel="${py#*example/python/}"
+    info "run Py:   source $DIST_DIR/build_dist/examples/setup.bash && python3 $DIST_DIR/build_dist/examples/python/$rel"
 done
 exit 0
